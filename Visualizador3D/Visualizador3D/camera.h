@@ -12,14 +12,17 @@ enum Camera_Movement {
     FORWARD,
     BACKWARD,
     LEFT,
-    RIGHT
+    RIGHT,
+    X,
+    Y,
+    Z
 };
 
 // Default camera values
 const float YAW = -90.0f;
 const float PITCH = 0.0f;
 const float SPEED = 20.0f;
-const float SENSITIVITY = 1.0f;
+const float SENSITIVITY = 0.1f;
 const float ZOOM = 45.0f;
 
 
@@ -33,6 +36,9 @@ public:
     glm::vec3 Up;
     glm::vec3 Right;
     glm::vec3 WorldUp;
+    glm::vec3 axis = glm::vec3(0.0f, 1.0f, 0.0f);
+    float angle = 1.0f;
+
     // euler Angles
     float Yaw;
     float Pitch;
@@ -66,6 +72,11 @@ public:
         return glm::lookAt(Position, Position + Front, Up);
     }
 
+    glm::mat4 GetModelMatrix(glm::mat4 model)
+    {
+        return glm::rotate(model, angle, axis);
+    }
+
     // processes input received from any keyboard-like input system. Accepts input parameter in the form of camera defined ENUM (to abstract it from windowing systems)
     void ProcessKeyboard(Camera_Movement direction, float deltaTime)
     {
@@ -78,9 +89,21 @@ public:
             Position -= Right * velocity;
         if (direction == RIGHT)
             Position += Right * velocity;
+
+        if (direction == X) {
+            angle = (GLfloat)glfwGetTime();
+            axis = glm::vec3(1.0f, 0.0f, 0.0f);
+        }
+        if (direction == Y) {
+            angle = (GLfloat)glfwGetTime();
+            axis = glm::vec3(0.0f, 1.0f, 0.0f);
+        }
+        if (direction == Z) {
+            angle = (GLfloat)glfwGetTime();
+            axis = glm::vec3(0.0f, 0.0f, 1.0f);
+        }
     }
 
-    // processes input received from a mouse input system. Expects the offset value in both the x and y direction.
     void ProcessMouseMovement(float xoffset, float yoffset, GLboolean constrainPitch = true)
     {
         xoffset *= MouseSensitivity;
@@ -89,20 +112,15 @@ public:
         Yaw += xoffset;
         Pitch += yoffset;
 
-        // make sure that when pitch is out of bounds, screen doesn't get flipped
-        if (constrainPitch)
-        {
-            if (Pitch > 89.0f)
-                Pitch = 89.0f;
-            if (Pitch < -89.0f)
-                Pitch = -89.0f;
-        }
+        if (Pitch > 89.0f)
+            Pitch = 89.0f;
+        if (Pitch < -89.0f)
+            Pitch = -89.0f;
 
         // update Front, Right and Up Vectors using the updated Euler angles
         updateCameraVectors();
     }
 
-    // processes input received from a mouse scroll-wheel event. Only requires input on the vertical wheel-axis
     void ProcessMouseScroll(float yoffset)
     {
         Zoom -= (float)yoffset;
