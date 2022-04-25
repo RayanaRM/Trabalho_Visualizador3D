@@ -15,7 +15,11 @@ enum Camera_Movement {
     RIGHT,
     X,
     Y,
-    Z
+    Z,
+    T,
+    R,
+    I,
+    U
 };
 
 // Default camera values
@@ -38,6 +42,9 @@ public:
     glm::vec3 WorldUp;
     glm::vec3 axis = glm::vec3(0.0f, 1.0f, 0.0f);
     float angle = 1.0f;
+    float type;
+    float inc;
+    glm::vec3 positionTranslate = glm::vec3(0.0f, 0.0f, 0.0f);
 
     // euler Angles
     float Yaw;
@@ -48,7 +55,7 @@ public:
     float Zoom;
 
     // constructor with vectors
-    Camera(glm::vec3 position = glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f), float yaw = YAW, float pitch = PITCH) : Front(glm::vec3(0.0f, 0.0f, -1.0f)), MovementSpeed(SPEED), MouseSensitivity(SENSITIVITY), Zoom(ZOOM)
+    Camera(glm::vec3 position, glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f), float yaw = YAW, float pitch = PITCH) : Front(glm::vec3(0.0f, 0.0f, -1.0f)), MovementSpeed(SPEED), MouseSensitivity(SENSITIVITY), Zoom(ZOOM)
     {
         Position = position;
         WorldUp = up;
@@ -74,33 +81,64 @@ public:
 
     glm::mat4 GetModelMatrix(glm::mat4 model)
     {
-        return glm::rotate(model, angle, axis);
+        model = glm::rotate(model, angle, axis);
+        model = glm::translate(model, positionTranslate);
+        return model;
     }
 
     // processes input received from any keyboard-like input system. Accepts input parameter in the form of camera defined ENUM (to abstract it from windowing systems)
-    void ProcessKeyboard(Camera_Movement direction, float deltaTime)
+    void ProcessKeyboard(Camera_Movement key, float deltaTime)
     {
         float velocity = MovementSpeed * deltaTime;
-        if (direction == FORWARD)
+
+        // Teclas de controle (rotaçâo/ translação)
+        if (key == T) {
+            type = 1;
+        }
+        if (key == R) {
+            type = 2;
+        }
+
+        // Teclas de controle (incrementa/ decrementa)
+        if (key == I) {
+            inc = 1;
+        }
+        if (key == U) {
+            inc = 0;
+        }
+
+        if (key == FORWARD)
             Position += Front * velocity;
-        if (direction == BACKWARD)
+        if (key == BACKWARD)
             Position -= Front * velocity;
-        if (direction == LEFT)
+        if (key == LEFT)
             Position -= Right * velocity;
-        if (direction == RIGHT)
+        if (key == RIGHT)
             Position += Right * velocity;
 
-        if (direction == X) {
+        // Rotação
+        if (key == X  && type == 2) {
             angle = (GLfloat)glfwGetTime();
             axis = glm::vec3(1.0f, 0.0f, 0.0f);
         }
-        if (direction == Y) {
+        if (key == Y && type == 2) {
             angle = (GLfloat)glfwGetTime();
             axis = glm::vec3(0.0f, 1.0f, 0.0f);
         }
-        if (direction == Z) {
+        if (key == Z && type == 2) {
             angle = (GLfloat)glfwGetTime();
             axis = glm::vec3(0.0f, 0.0f, 1.0f);
+        }
+
+        // Translação
+        if (key == X && type == 1) {
+            positionTranslate[0] += inc == 1 ? 0.01 : -0.01;
+        }
+        if (key == Y && type == 1) {
+            positionTranslate[1] += inc == 1 ? 0.01 : -0.01;
+        }
+        if (key == Z && type == 1) {
+            positionTranslate[2] += inc == 1 ? 0.01 : -0.01;
         }
     }
 

@@ -8,6 +8,9 @@ Integrantes: Rayana Menezes, [Mateus de Souza](https://github.com/mateusdesouzaa
 
 ## Comandos:
 - Teclas W, S, A, D: Movimentam a câmera pra frente, para trás, para esquerda e direita, respectivamente.
-- Teclas X, Y, Z: Permitem a rotação do objeto nos eixos X, Y e Z.
-- Clicar e arrastar com o mouse: Movimenta a câmera.
+- Teclas R, T: Selecionam o tipo de movimento (rotaçâo ou translação).
+- Teclas I, U: Para o movimento de translaçâo, essas teclas alteram a direção do movimento.
+- Teclas X, Y, Z: Permitem a rotação ou translaçâo do objeto nos eixos X, Y e Z.
+- Arrastar com o mouse: Movimenta a câmera.
 - Scroll do mouse: Aumenta ou diminui o zoom.
+- Tecla C: Seleciona o objeto carregado aplicando a mistura de uma cor com a textura do objeto.
