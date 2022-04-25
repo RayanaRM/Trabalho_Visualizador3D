@@ -15,6 +15,7 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void mouse_callback(GLFWwindow* window, double xpos, double ypos);
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
 void processInput(GLFWwindow* window);
+void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods);
 
 // settings
 const unsigned int SCR_WIDTH = 800;
@@ -30,6 +31,9 @@ bool firstMouse = true;
 // timing
 float deltaTime = 0.0f;
 float lastFrame = 0.0f;
+
+// selection
+bool isSelected = false;
 
 int main()
 {
@@ -57,6 +61,7 @@ int main()
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
     glfwSetCursorPosCallback(window, mouse_callback);
     glfwSetScrollCallback(window, scroll_callback);
+    glfwSetKeyCallback(window, key_callback);
 
 
     // glad: load all OpenGL function pointers
@@ -72,6 +77,9 @@ int main()
     glEnable(GL_DEPTH_TEST);
 
     Shader ourShader("../shaders/shader_model.vs", "../shaders/shader_model.fs");
+    Shader selectedShader("../shaders/shader_model.vs", "../shaders/selected_shader_model.fs");
+
+    Shader currentShader = ourShader;
 
     cout << "Pasta e nome do arquivo: ";
     cin >> img_name;
@@ -96,26 +104,28 @@ int main()
         glClearColor(0.933f, 0.933f, 0.929f, 1.0f); //cor de fundo
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        ourShader.use();
+        currentShader = (isSelected == true) ? selectedShader : ourShader;
+        currentShader.use();
 
         // view/projection transformations
         glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
         glm::mat4 view = camera.GetViewMatrix();
-        ourShader.setMat4("projection", projection);
-        GLint projectionLoc = glGetUniformLocation(ourShader.ID, "projection"); 
+
+        currentShader.setMat4("projection", projection);
+        GLint projectionLoc = glGetUniformLocation(currentShader.ID, "projection"); 
         glUniformMatrix4fv(projectionLoc, 1, FALSE, glm::value_ptr(projection));
         
-        ourShader.setMat4("view", view);
-        GLint viewLoc = glGetUniformLocation(ourShader.ID, "view");
+        currentShader.setMat4("view", view);
+        GLint viewLoc = glGetUniformLocation(currentShader.ID, "view");
         glUniformMatrix4fv(viewLoc, 1, FALSE, glm::value_ptr(view));
 
         // render the loaded model
         glm::mat4 model = glm::mat4(1.0f);
         model = camera.GetModelMatrix(model);
-        ourShader.setMat4("model", model);
-        GLint modelLoc = glGetUniformLocation(ourShader.ID, "model");
+        currentShader.setMat4("model", model);
+        GLint modelLoc = glGetUniformLocation(currentShader.ID, "model");
         glUniformMatrix4fv(modelLoc, 1, FALSE, glm::value_ptr(model));
-        ourModel.Draw(ourShader);
+        ourModel.Draw(currentShader);
 
         glfwSwapBuffers(window);
         glfwPollEvents();
@@ -186,4 +196,12 @@ void mouse_callback(GLFWwindow* window, double xposIn, double yposIn)
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
 {
     camera.ProcessMouseScroll(static_cast<float>(yoffset));
+}
+
+void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
+{
+    if (key == GLFW_KEY_C && action == GLFW_PRESS)
+    {
+        isSelected = !isSelected;
+    }
 }

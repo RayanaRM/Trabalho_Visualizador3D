@@ -13,3 +13,4 @@ Integrantes: Rayana Menezes, [Mateus de Souza](https://github.com/mateusdesouzaa
 - Teclas X, Y, Z: Permitem a rotação ou translaçâo do objeto nos eixos X, Y e Z.
 - Arrastar com o mouse: Movimenta a câmera.
 - Scroll do mouse: Aumenta ou diminui o zoom.
+- Tecla C: Seleciona o objeto carregado aplicando a mistura de uma cor com a textura do objeto.
