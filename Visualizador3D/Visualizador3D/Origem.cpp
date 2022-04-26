@@ -37,19 +37,11 @@ bool isSelected = false;
 
 int main()
 {
-    // glfw: initialize and configure
-    // ------------------------------
     glfwInit();
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-#ifdef __APPLE__
-    glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
-#endif
-
-    // glfw window creation
-    // --------------------
     GLFWwindow* window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "LearnOpenGL", NULL, NULL);
     if (window == NULL)
     {
@@ -57,6 +49,7 @@ int main()
         glfwTerminate();
         return -1;
     }
+
     glfwMakeContextCurrent(window);
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
     glfwSetCursorPosCallback(window, mouse_callback);
@@ -65,8 +58,6 @@ int main()
 
     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
-    // glad: load all OpenGL function pointers
-    // ---------------------------------------
     if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
     {
         std::cout << "Failed to initialize GLAD" << std::endl;
@@ -88,14 +79,8 @@ int main()
     Model ourModel("../modelos/" + img_name);
 
 
-    // draw in wireframe
-    //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-
-
     while (!glfwWindowShouldClose(window))
     {
-        // per-frame time logic
-        // --------------------
         float currentFrame = static_cast<float>(glfwGetTime());
         deltaTime = currentFrame - lastFrame;
         lastFrame = currentFrame;
@@ -108,19 +93,18 @@ int main()
         currentShader = (isSelected == true) ? selectedShader : ourShader;
         currentShader.use();
 
-        // view/projection transformations
+        // matrizes view/projection transformations
         glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
-        glm::mat4 view = camera.GetViewMatrix();
-
         currentShader.setMat4("projection", projection);
-        GLint projectionLoc = glGetUniformLocation(currentShader.ID, "projection"); 
+        GLint projectionLoc = glGetUniformLocation(currentShader.ID, "projection");
         glUniformMatrix4fv(projectionLoc, 1, FALSE, glm::value_ptr(projection));
-        
+
+        glm::mat4 view = camera.GetViewMatrix();
         currentShader.setMat4("view", view);
         GLint viewLoc = glGetUniformLocation(currentShader.ID, "view");
         glUniformMatrix4fv(viewLoc, 1, FALSE, glm::value_ptr(view));
 
-        // render the loaded model
+        // model
         glm::mat4 model = glm::mat4(1.0f);
         model = camera.GetModelMatrix(model);
         currentShader.setMat4("model", model);
@@ -141,6 +125,7 @@ void processInput(GLFWwindow* window)
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
         glfwSetWindowShouldClose(window, true);
 
+    // movimenta camera
     if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
         camera.ProcessKeyboard(FORWARD, deltaTime);
     if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
@@ -150,22 +135,29 @@ void processInput(GLFWwindow* window)
     if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
         camera.ProcessKeyboard(RIGHT, deltaTime);
 
+    // altera entre translacao e rotacao
     if (glfwGetKey(window, GLFW_KEY_R) == GLFW_PRESS)
-        camera.ProcessKeyboard(R, deltaTime);
+        camera.ProcessKeyboard(ROTACAO, deltaTime);
     if (glfwGetKey(window, GLFW_KEY_T) == GLFW_PRESS)
-        camera.ProcessKeyboard(T, deltaTime);
+        camera.ProcessKeyboard(TRANSLACAO, deltaTime);
 
+    // incrementa ou decrementa movimento de translacao
     if (glfwGetKey(window, GLFW_KEY_I) == GLFW_PRESS)
         camera.ProcessKeyboard(I, deltaTime);
     if (glfwGetKey(window, GLFW_KEY_U) == GLFW_PRESS)
         camera.ProcessKeyboard(U, deltaTime);
 
+    // eixos
     if (glfwGetKey(window, GLFW_KEY_X) == GLFW_PRESS)
         camera.ProcessKeyboard(X, deltaTime);
     if (glfwGetKey(window, GLFW_KEY_Y) == GLFW_PRESS)
         camera.ProcessKeyboard(Y, deltaTime);
     if (glfwGetKey(window, GLFW_KEY_Z) == GLFW_PRESS)
         camera.ProcessKeyboard(Z, deltaTime);
+
+    // escala
+    if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS)
+        camera.ProcessKeyboard(ESCALA, deltaTime);
 }
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height)
