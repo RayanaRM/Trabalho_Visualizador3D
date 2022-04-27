@@ -50,6 +50,7 @@ int main()
         return -1;
     }
 
+    // metodos de callback
     glfwMakeContextCurrent(window);
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
     glfwSetCursorPosCallback(window, mouse_callback);
