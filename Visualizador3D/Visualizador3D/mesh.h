@@ -56,7 +56,7 @@ public:
         setupMesh();
     }
 
-    // render the mesh
+    // render mesh
     void Draw(Shader& shader)
     {
         // bind appropriate textures

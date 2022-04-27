@@ -47,7 +47,6 @@ public:
 
 private:
     // carrega modelo informado usando o ASSIMP e armazena os meshes (grupos do objeto)
-    // loads a model with supported ASSIMP extensions from file and stores the resulting meshes in the meshes vector.
     void loadModel(string const& path)
     {
         // usa ASSIMP para ler o arquivo
@@ -65,18 +64,13 @@ private:
         processNode(scene->mRootNode, scene);
     }
 
-    // processes a node in a recursive fashion. Processes each individual mesh located at the node and repeats this process on its children nodes (if any).
     void processNode(aiNode* node, const aiScene* scene)
     {
-        // process each mesh located at the current node
         for (unsigned int i = 0; i < node->mNumMeshes; i++)
         {
-            // the node object only contains indices to index the actual objects in the scene. 
-            // the scene contains all the data, node is just to keep stuff organized (like relations between nodes).
             aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
             meshes.push_back(processMesh(mesh, scene));
         }
-        // after we've processed all of the meshes (if any) we then recursively process each of the children nodes
         for (unsigned int i = 0; i < node->mNumChildren; i++)
         {
             processNode(node->mChildren[i], scene);
@@ -157,12 +151,10 @@ private:
         std::vector<Texture> heightMaps = loadMaterialTextures(material, aiTextureType_AMBIENT, "texture_height");
         textures.insert(textures.end(), heightMaps.begin(), heightMaps.end());
 
-        // return a mesh object created from the extracted mesh data
+        // cria objeto mesh
         return Mesh(vertices, indices, textures);
     }
 
-    // checks all material textures of a given type and loads the textures if they're not loaded yet.
-    // the required info is returned as a Texture struct.
     vector<Texture> loadMaterialTextures(aiMaterial* mat, aiTextureType type, string typeName)
     {
         vector<Texture> textures;
@@ -170,25 +162,24 @@ private:
         {
             aiString str;
             mat->GetTexture(type, i, &str);
-            // check if texture was loaded before and if so, continue to next iteration: skip loading a new texture
             bool skip = false;
             for (unsigned int j = 0; j < textures_loaded.size(); j++)
             {
                 if (std::strcmp(textures_loaded[j].path.data(), str.C_Str()) == 0)
                 {
                     textures.push_back(textures_loaded[j]);
-                    skip = true; // a texture with the same filepath has already been loaded, continue to next one. (optimization)
+                    skip = true; 
                     break;
                 }
             }
             if (!skip)
-            {   // if texture hasn't been loaded already, load it
+            {   
                 Texture texture;
                 texture.id = TextureFromFile(str.C_Str(), this->directory);
                 texture.type = typeName;
                 texture.path = str.C_Str();
                 textures.push_back(texture);
-                textures_loaded.push_back(texture);  // store it as texture loaded for entire model, to ensure we won't unnecesery load duplicate textures.
+                textures_loaded.push_back(texture);  
             }
         }
         return textures;
