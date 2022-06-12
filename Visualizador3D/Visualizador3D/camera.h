@@ -6,6 +6,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 
 #include <vector>
+#include "objeto.h"
 
 enum KEY_INPUTS {
     FORWARD,
@@ -33,17 +34,18 @@ const float ZOOM = 45.0f;
 class Camera
 {
 public:
-    // camera Attributes
-    glm::vec3 Position;
-    glm::vec3 Front;
-    glm::vec3 Up;
-    glm::vec3 Right;
-    glm::vec3 WorldUp;
-    glm::vec3 axis = glm::vec3(0.0f, 1.0f, 0.0f);
-    glm::vec3 positionTranslate = glm::vec3(0.0f, 0.0f, 0.0f);
-    float angle = 1.0f;
+    // camera Attributes for object One
+    glm::vec3 Position[10];
+    glm::vec3 Front[10];
+    glm::vec3 Up[10];
+    glm::vec3 Right[10];
+    glm::vec3 WorldUp[10];
+    glm::vec3 axis[10];
+    glm::vec3 positionTranslate[10];
+    float angle[10];
+    float escala[10];
 
-    // euler Angles
+    // euler Angles for 
     float Yaw;
     float Pitch;
 
@@ -52,39 +54,46 @@ public:
     float MouseSensitivity;
     float Zoom;
 
-    // variaveis de controle
-    float escala = 0.1f;
     float type;
     float inc;
 
     // constructor with vectors
-    Camera(glm::vec3 position, glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f), float yaw = YAW, float pitch = PITCH) : Front(glm::vec3(0.0f, 0.0f, -1.0f)), MovementSpeed(SPEED), MouseSensitivity(SENSITIVITY), Zoom(ZOOM)
+    Camera(glm::vec3 position, glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f), float yaw = YAW, float pitch = PITCH) : MovementSpeed(SPEED), MouseSensitivity(SENSITIVITY), Zoom(ZOOM)
     {
-        Position = position;
-        WorldUp = up;
+        for(unsigned int i = 0; i < 10; i++){
+            Position[i] = glm::vec3(position[0]/(i+1), position[1], position[2]);
+            WorldUp[i] = up;
+           
+            Front[i] = glm::vec3(0.0f, 0.0f, -1.0f);
+            axis[i] = glm::vec3(0.0f, 1.0f, 0.0f);
+            positionTranslate[i] = glm::vec3(0.0f, 0.0f, 0.0f);
+            angle[i] = 1.0f;
+            escala[i] = 0.1f;
+        }
+
         Yaw = yaw;
         Pitch = pitch;
         updateCameraVectors();
     }
 
-    glm::mat4 GetViewMatrix()
-    {
-        return glm::lookAt(Position, Position + Front, Up);
+    glm::mat4 GetViewMatrix(int id)
+    {     
+        return glm::lookAt(Position[id], Position[id] + Front[id], Up[id]);
     }
 
-    glm::mat4 GetModelMatrix(glm::mat4 model)
+    glm::mat4 GetModelMatrix(glm::mat4 model, int id)
     {
-        model = glm::rotate(model, angle, axis);
-        model = glm::translate(model, positionTranslate);
-        model = glm::scale(model, glm::vec3(escala, escala, escala));
+        model = glm::rotate(model, angle[id], axis[id]);
+        model = glm::translate(model, positionTranslate[id]);
+        model = glm::scale(model, glm::vec3(escala[id], escala[id], escala[id]));
         return model;
     }
 
-    void ProcessKeyboard(KEY_INPUTS key, float deltaTime)
+    void ProcessKeyboard(KEY_INPUTS key, float deltaTime, Objeto objeto)
     {
         float velocity = MovementSpeed * deltaTime;
 
-        // Teclas de controle (rotaçâo/ translação)
+        // Teclas de controle (rotaï¿½ï¿½o/ translaï¿½ï¿½o)
         if (key == TRANSLACAO) {
             type = 1;
         }
@@ -101,47 +110,51 @@ public:
         }
 
         // movimentacao da camera
-        if (key == FORWARD)
-            Position += Front * velocity;
-        if (key == BACKWARD)
-            Position -= Front * velocity;
-        if (key == LEFT)
-            Position -= Right * velocity;
-        if (key == RIGHT)
-            Position += Right * velocity;
+        if (key == FORWARD){
+            Position[objeto.id] += Front[objeto.id] * velocity;
+        }
+        if (key == BACKWARD){
+            Position[objeto.id] -= Front[objeto.id] * velocity;
+        }
+        if (key == LEFT){
+            Position[objeto.id] -= Right[objeto.id] * velocity;
+        }
+        if (key == RIGHT){
+            Position[objeto.id] += Right[objeto.id] * velocity;
+        }
 
-        // Rotação
+        // Rotaï¿½ï¿½o
         if (key == X  && type == 2) {
-            angle = (GLfloat)glfwGetTime();
-            axis = glm::vec3(1.0f, 0.0f, 0.0f);
+            angle[objeto.id] = (GLfloat)glfwGetTime();
+            axis[objeto.id] = glm::vec3(1.0f, 0.0f, 0.0f);
         }
         if (key == Y && type == 2) {
-            angle = (GLfloat)glfwGetTime();
-            axis = glm::vec3(0.0f, 1.0f, 0.0f);
+            angle[objeto.id] = (GLfloat)glfwGetTime();
+            axis[objeto.id] = glm::vec3(0.0f, 1.0f, 0.0f);
         }
         if (key == Z && type == 2) {
-            angle = (GLfloat)glfwGetTime();
-            axis = glm::vec3(0.0f, 0.0f, 1.0f);
+            angle[objeto.id] = (GLfloat)glfwGetTime();
+            axis[objeto.id] = glm::vec3(0.0f, 0.0f, 1.0f);
         }
 
-        // Translação
+        // Translaï¿½ï¿½o
         if (key == X && type == 1) {
-            positionTranslate[0] += inc == 1 ? 0.01 : -0.01;
+            positionTranslate[objeto.id][0] += inc == 1 ? 0.01 : -0.01;
         }
         if (key == Y && type == 1) {
-            positionTranslate[1] += inc == 1 ? 0.01 : -0.01;
+            positionTranslate[objeto.id][1] += inc == 1 ? 0.01 : -0.01;
         }
         if (key == Z && type == 1) {
-            positionTranslate[2] += inc == 1 ? 0.01 : -0.01;
+            positionTranslate[objeto.id][2] += inc == 1 ? 0.01 : -0.01;
         }
 
         // escala
         if (key == ESCALA) {
-            escala += inc == 1 ? 0.0005f : -0.0005f;
-            if (escala > 1.0f)  
-                escala = 1.0f;
-            else if (escala < 0.01f)
-                escala = 0.01f;
+            escala[objeto.id] += inc == 1 ? 0.0005f : -0.0005f;
+            if (escala[objeto.id] > 1.0f)  
+                escala[objeto.id] = 1.0f;
+            else if (escala[objeto.id] < 0.01f)
+                escala[objeto.id] = 0.01f;
         }
     }
 
@@ -171,7 +184,7 @@ public:
         if (Zoom > 45.0f)
             Zoom = 45.0f;
     }
-
+// tentar passar array
 private:
     void updateCameraVectors()
     {
@@ -179,9 +192,12 @@ private:
         front.x = cos(glm::radians(Yaw)) * cos(glm::radians(Pitch));
         front.y = sin(glm::radians(Pitch));
         front.z = sin(glm::radians(Yaw)) * cos(glm::radians(Pitch));
-        Front = glm::normalize(front);
-        Right = glm::normalize(glm::cross(Front, WorldUp));
-        Up = glm::normalize(glm::cross(Right, Front));
+        
+        for(unsigned int i = 0; i < 10; i++){
+            Front[i] = glm::normalize(front);
+            Right[i] = glm::normalize(glm::cross(Front[i], WorldUp[i]));
+            Up[i] = glm::normalize(glm::cross(Right[i], Front[i]));
+        }
     }
 };
 #endif
