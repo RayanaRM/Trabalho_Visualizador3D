@@ -82,8 +82,8 @@ int main()
 
     glEnable(GL_DEPTH_TEST);
 
-    Shader ourShader("shaders/shader_model.vs", "shaders/shader_model.fs");
-    Shader selectedShader("shaders/shader_model.vs", "shaders/selected_shader_model.fs");
+    Shader ourShader("../shaders/shader_model.vs", "../shaders/shader_model.fs");
+    Shader selectedShader("../shaders/shader_model.vs", "../shaders/selected_shader_model.fs");
 
     Shader currentShader = ourShader;
     objetos.push_back(Objeto(1, true));
