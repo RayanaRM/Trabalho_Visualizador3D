@@ -18,7 +18,11 @@ public:
 
 	void helloWorld()
 	{
-		cout << FilePath;
+		std::ifstream i(FilePath);
+		json j;
+		i >> j;
+
+		string helloWorld = j.value("helloWorld", "");
 	}
 };
 
