@@ -9,6 +9,7 @@
 #include "camera.h"
 #include "model.h"
 #include "objeto.h"
+#include "json_parser.h"
 
 #include <iostream>
 #include <vector>
@@ -46,6 +47,9 @@ bool isSelected2 = false;
 
 int main()
 {
+    JsonParser parser("../config.json");
+    string modelPath = parser.getModelPath();
+
     glfwInit();
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
@@ -89,8 +93,10 @@ int main()
     objetos.push_back(Objeto(1, true));
     objetos.push_back(Objeto(2, false));
 
-    Model modelo1("../modelos/Pokemon/Pikachu.obj");
+    Model modelo1(modelPath);
     Model modelo2("../modelos/Pokemon/PikachuF.obj");
+
+    
 
     while (!glfwWindowShouldClose(window))
     {
