@@ -16,13 +16,15 @@ public:
 		FilePath = filePath;
 	}
 
-	void helloWorld()
+	string getModelPath()
 	{
 		std::ifstream i(FilePath);
 		json j;
 		i >> j;
 
-		string helloWorld = j.value("helloWorld", "");
+		string modelPath = j.value("modelPath", "");
+
+		return modelPath;
 	}
 };
 
