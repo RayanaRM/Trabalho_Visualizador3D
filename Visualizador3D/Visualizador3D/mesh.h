@@ -88,6 +88,7 @@ public:
         // desenha mesh
         glBindVertexArray(VAO);
         glDrawElements(GL_TRIANGLES, static_cast<unsigned int>(indices.size()), GL_UNSIGNED_INT, 0);
+        glDisable(GL_TEXTURE_2D);
         glBindVertexArray(0);
 
         glActiveTexture(GL_TEXTURE0);

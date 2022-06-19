@@ -56,19 +56,20 @@ public:
 
     float type;
     float inc;
+    int mvm = 0;
 
     // constructor with vectors
     Camera(glm::vec3 position, glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f), float yaw = YAW, float pitch = PITCH) : MovementSpeed(SPEED), MouseSensitivity(SENSITIVITY), Zoom(ZOOM)
     {
-        for(unsigned int i = 0; i < 10; i++){
-            Position[i] = glm::vec3(position[0]/(i+1), position[1], position[2]);
+        for (unsigned int i = 0; i < 10; i++) {
+            Position[i] = glm::vec3(position[0] + (i * 5), position[1], position[2]);
             WorldUp[i] = up;
-           
+
             Front[i] = glm::vec3(0.0f, 0.0f, -1.0f);
             axis[i] = glm::vec3(0.0f, 1.0f, 0.0f);
             positionTranslate[i] = glm::vec3(0.0f, 0.0f, 0.0f);
             angle[i] = 1.0f;
-            escala[i] = 0.1f;
+            escala[i] = 0.5f;
         }
 
         Yaw = yaw;
@@ -77,15 +78,32 @@ public:
     }
 
     glm::mat4 GetViewMatrix(int id)
-    {     
+    {
         return glm::lookAt(Position[id], Position[id] + Front[id], Up[id]);
     }
 
-    glm::mat4 GetModelMatrix(glm::mat4 model, int id)
+    void AtualizaCamera(std::vector <Objeto> objetos) {
+        for (int i = 0; i < objetos.size(); i++) {
+            escala[objetos[i].id] = objetos[i].escala;
+            positionTranslate[objetos[i].id] = objetos[i].positionTranslate;
+        }
+    }
+
+    glm::mat4 GetModelMatrix(glm::mat4 model, Objeto obj, std::vector<glm::vec3*>* pontosCurva)
     {
+        int id = obj.id;
         model = glm::rotate(model, angle[id], axis[id]);
         model = glm::translate(model, positionTranslate[id]);
         model = glm::scale(model, glm::vec3(escala[id], escala[id], escala[id]));
+
+        if (obj.hasCurves) {
+            if (pontosCurva->size() - 5 == mvm)
+                mvm = 0;
+
+            model = glm::translate(model, glm::vec3(pontosCurva->at(mvm)->x, pontosCurva->at(mvm)->y, pontosCurva->at(mvm)->z));
+            angle[id] = -calcularAnguloOBJ(mvm, mvm + 5, pontosCurva);
+            mvm++;
+        }
         return model;
     }
 
@@ -110,21 +128,21 @@ public:
         }
 
         // movimentacao da camera
-        if (key == FORWARD){
+        if (key == FORWARD) {
             Position[objeto.id] += Front[objeto.id] * velocity;
         }
-        if (key == BACKWARD){
+        if (key == BACKWARD) {
             Position[objeto.id] -= Front[objeto.id] * velocity;
         }
-        if (key == LEFT){
+        if (key == LEFT) {
             Position[objeto.id] -= Right[objeto.id] * velocity;
         }
-        if (key == RIGHT){
+        if (key == RIGHT) {
             Position[objeto.id] += Right[objeto.id] * velocity;
         }
 
         // Rota��o
-        if (key == X  && type == 2) {
+        if (key == X && type == 2) {
             angle[objeto.id] = (GLfloat)glfwGetTime();
             axis[objeto.id] = glm::vec3(1.0f, 0.0f, 0.0f);
         }
@@ -151,11 +169,31 @@ public:
         // escala
         if (key == ESCALA) {
             escala[objeto.id] += inc == 1 ? 0.0005f : -0.0005f;
-            if (escala[objeto.id] > 1.0f)  
+            if (escala[objeto.id] > 1.0f)
                 escala[objeto.id] = 1.0f;
             else if (escala[objeto.id] < 0.01f)
                 escala[objeto.id] = 0.01f;
         }
+    }
+
+    float calcularAnguloOBJ(int indexA, int indexB, std::vector<glm::vec3*>* pontosCurva) {
+
+        glm::vec3* a = pontosCurva->at(indexA);
+        glm::vec3* b;
+
+        if (indexA == pontosCurva->size() - 5) {
+            b = pontosCurva->at(0);
+        }
+        else {
+            b = pontosCurva->at(indexB);
+        }
+
+        GLfloat dx = b->x - a->x;
+        GLfloat dz = b->z - a->z;
+
+        GLfloat angle = glm::atan(dz, dx);
+
+        return angle;
     }
 
     void ProcessMouseMovement(float xoffset, float yoffset, GLboolean constrainPitch = true)
@@ -184,7 +222,7 @@ public:
         if (Zoom > 45.0f)
             Zoom = 45.0f;
     }
-// tentar passar array
+    // tentar passar array
 private:
     void updateCameraVectors()
     {
@@ -192,8 +230,8 @@ private:
         front.x = cos(glm::radians(Yaw)) * cos(glm::radians(Pitch));
         front.y = sin(glm::radians(Pitch));
         front.z = sin(glm::radians(Yaw)) * cos(glm::radians(Pitch));
-        
-        for(unsigned int i = 0; i < 10; i++){
+
+        for (unsigned int i = 0; i < 10; i++) {
             Front[i] = glm::normalize(front);
             Right[i] = glm::normalize(glm::cross(Front[i], WorldUp[i]));
             Up[i] = glm::normalize(glm::cross(Right[i], Front[i]));

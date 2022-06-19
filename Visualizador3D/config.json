@@ -1,0 +1,36 @@
+{
+    "objeto": [
+    {
+      "id": 0,
+      "isSelected": true,
+      "hasCurves": true,
+      "escala": 0.01,
+      "positionTranslate": [20.0, 7.0, 0.0],
+      "path": "../modelos/c/Chair.obj"
+    },
+    {
+      "id": 1,
+      "isSelected": false,
+      "hasCurves": false,
+      "escala": 0.03,
+      "positionTranslate": [0.0, 0.0, 0.0],
+      "path": "../modelos/c/table.obj"
+    },
+    {
+      "id": 2,
+      "isSelected": false,
+      "hasCurves": false,
+      "escala": 0.5,
+      "positionTranslate": [0.0, 1.1, 0.0], 
+      "path": "../modelos/c/lamp.obj"
+    },
+    {
+      "id": 3,
+      "isSelected": false,
+      "hasCurves": false,
+      "escala": 0.1,
+      "positionTranslate": [4.0, 1.1, 11.0],
+      "path": "../modelos/c/s.obj"
+    }
+  ]
+}
