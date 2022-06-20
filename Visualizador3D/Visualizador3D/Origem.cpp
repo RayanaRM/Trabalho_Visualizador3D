@@ -225,9 +225,11 @@ void setObject(Shader shader, Objeto objeto, Model modelo)
 {
     // iluminação
     GLint lightColorLoc = glGetUniformLocation(shader.ID, "lightColor");
-    glUniform3f(lightColorLoc, 0.95f, 0.77f, 0.1f);
+    glUniform3f(lightColorLoc, 0.5f, 0.5f, 0.5f);
     GLint lightPosLoc = glGetUniformLocation(shader.ID, "lightPos");
     glUniform3f(lightPosLoc, 0.0f, 5.0f, 2.0f);
+    GLint viewPosLoc = glGetUniformLocation(shader.ID, "viewPos");
+    glUniform3f(viewPosLoc, 0.0f, 10.0f, 30.0f); // mudar para usar posição da câmera
 
     // matrizes view/projection transformations
     glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
