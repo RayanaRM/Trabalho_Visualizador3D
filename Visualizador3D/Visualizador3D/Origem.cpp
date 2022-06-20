@@ -223,8 +223,11 @@ void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
 
 void setObject(Shader shader, Objeto objeto, Model modelo)
 {
+    // iluminação
     GLint lightColorLoc = glGetUniformLocation(shader.ID, "lightColor");
     glUniform3f(lightColorLoc, 0.95f, 0.77f, 0.1f);
+    GLint lightPosLoc = glGetUniformLocation(shader.ID, "lightPos");
+    glUniform3f(lightPosLoc, 0.0f, 5.0f, 2.0f);
 
     // matrizes view/projection transformations
     glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
