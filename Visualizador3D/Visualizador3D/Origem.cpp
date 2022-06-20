@@ -103,7 +103,7 @@ int main()
     glEnable(GL_DEPTH_TEST);
 
     Shader ourShader("../shaders/shader_model.vs", "../shaders/shader_model.fs");
-    //Shader selectedShader("../shaders/shader_model.vs", "../shaders/selected_shader_model.fs");
+    Shader selectedShader("../shaders/shader_model.vs", "../shaders/selected_shader_model.fs");
 
     Shader currentShader = ourShader;
 
@@ -130,7 +130,7 @@ int main()
 
         // Loop para setar objetos e escolher shader      
         for (int i = 0; i < objetos.size(); i++) {
-            //currentShader = (objetos[i].isSelected) ? selectedShader : ourShader;
+            currentShader = (objetos[i].isSelected) ? selectedShader : ourShader;
             currentShader.use();
             setObject(currentShader, objetos[i], modelos[i]);
         }
