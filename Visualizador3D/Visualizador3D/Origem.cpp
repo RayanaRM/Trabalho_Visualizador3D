@@ -103,7 +103,7 @@ int main()
     glEnable(GL_DEPTH_TEST);
 
     Shader ourShader("../shaders/shader_model.vs", "../shaders/shader_model.fs");
-    Shader selectedShader("../shaders/shader_model.vs", "../shaders/selected_shader_model.fs");
+    //Shader selectedShader("../shaders/shader_model.vs", "../shaders/selected_shader_model.fs");
 
     Shader currentShader = ourShader;
 
@@ -130,7 +130,7 @@ int main()
 
         // Loop para setar objetos e escolher shader      
         for (int i = 0; i < objetos.size(); i++) {
-            currentShader = (objetos[i].isSelected) ? selectedShader : ourShader;
+            //currentShader = (objetos[i].isSelected) ? selectedShader : ourShader;
             currentShader.use();
             setObject(currentShader, objetos[i], modelos[i]);
         }
@@ -223,6 +223,9 @@ void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
 
 void setObject(Shader shader, Objeto objeto, Model modelo)
 {
+    GLint lightColorLoc = glGetUniformLocation(shader.ID, "lightColor");
+    glUniform3f(lightColorLoc, 0.95f, 0.77f, 0.1f);
+
     // matrizes view/projection transformations
     glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
     shader.setMat4("projection", projection);
